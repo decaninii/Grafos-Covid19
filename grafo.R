@@ -6,7 +6,7 @@ library(tidyr)
 
 data <- read.table("C:\\Users\\VICTOR\\Documents\\Estudos Pessoais\\Grafos-Covid19\\pesquisa_covid.csv", sep = ',', header=TRUE, fileEncoding = "UTF-8")
 
-data <- data[1:30, ]
+data <- data[1:50, ]
 
 data$dia_nasc <- as.factor(data$dia_nasc)
 data$genero <- as.factor(data$genero)
@@ -56,12 +56,16 @@ nodes2 <- data_manchete_mascara %>% distinct(autor)
 
 nodes3 <- data_manchete_mascara %>% distinct(area)
 
+nodes4 <- data_manchete_mascara %>% distinct(manchete_mascara)
+
+
 
 names(nodes1)[1] <- c("id")
 names(nodes2)[1] <- c("id")
 names(nodes3)[1] <- c("id")
+names(nodes4)[1] <- c("id")
 
-nodes <- rbind(nodes1, nodes2, nodes3, fill = TRUE)
+nodes <- rbind(nodes1, nodes2, nodes3, nodes4, fill = TRUE)
 
 nodes <- nodes %>% filter(id != "NA")
 nodes <- nodes %>% filter(id != "")
@@ -69,12 +73,16 @@ nodes <- nodes %>% filter(id != "")
 
 
 
-oms_terra <- data.frame(from = data_manchete_mascara$autor, to = data_manchete_mascara$area)
+mascara_autor<- data.frame(from = data_manchete_mascara$manchete_mascara, to = data_manchete_mascara$autor)
 
-terra_noticia <- data.frame(from = data_manchete_mascara$area, to = data_manchete_mascara$escolaridade)
+autor_escolaridade <- data.frame(from = data_manchete_mascara$autor, to = data_manchete_mascara$escolaridade)
 
 
-g_mascara <- rbind(oms_terra, terra_noticia, fill = TRUE)
+escolaridade_area <- data.frame(from = data_manchete_mascara$escolaridade, to = data_manchete_mascara$area)
+
+
+
+g_mascara <- rbind(mascara_autor, autor_escolaridade, escolaridade_area, fill = TRUE)
 
 g_mascara <- g_mascara %>% filter(from != "NA")
 g_mascara <- g_mascara %>% filter(from != "")
@@ -82,9 +90,10 @@ g_mascara <- g_mascara %>% filter(from != "")
 
 
 
-nodes_ <- data.frame(nodes, group =  c(rep("escolaridade", 3), rep("autor", 2),  rep("area", 3)), 
+
+nodes_ <- data.frame(nodes, group =  c(rep("escolaridade", 4), rep("autor", 2), rep("area", 3), rep("manchete mascara", 5)),   
                         
-                        shape = c(rep("dot", 8))
+                        shape = c(rep("dot", 4) ,rep("dot", 2), rep("dot", 3), rep("dot", 5))
                         
 )
 
@@ -94,7 +103,7 @@ a <- visNetwork(nodes_, g_mascara, height = "700px", width = "100%") %>%
              highlightNearest = TRUE, 
              nodesIdSelection = TRUE) %>% 
   
-  visGroups(groupname = "Manchete Mascara", color = "orange") %>% 
+  visGroups(groupname = "manchete mascara", color = "green") %>%
   visPhysics(stabilization = TRUE)
 
 visLegend(a, main="Legend", position="right", ncol=1) 
